@@ -1,14 +1,10 @@
-// node-proxy-server/src/services/githubService.js
 const axios = require('axios');
-const https = require('https'); // Import the https module for the Agent
+const https = require('https'); 
 
-// Get the ASP.NET API URL from environment variables
 const ASPNET_API_URL = process.env.ASPNET_API_URL;
 
-// IMPORTANT: For development only, to allow self-signed HTTPS certificate from ASP.NET Core
-// DO NOT USE IN PRODUCTION!
 const axiosInstance = axios.create({
-    // This option is specific to Node.js's HTTPS agent
+    
     httpsAgent: new https.Agent({ rejectUnauthorized: false })
 });
 
@@ -19,8 +15,7 @@ async function getGitHubProfileFromAspNetCore(username) {
 
     try {
         console.log(`Service: Calling ASP.NET API for user: ${username} at ${ASPNET_API_URL}`);
-        // FIX APPLIED HERE: Corrected the URL string, removing extra HTML/Markdown.
-        // It should be a simple template literal.
+       
         const response = await axiosInstance.get(`${ASPNET_API_URL}/${username}`);
         console.log(`Service: Received response from ASP.NET API for ${username}`);
         return response.data;
@@ -34,7 +29,7 @@ async function getGitHubProfileFromAspNetCore(username) {
                 throw new Error('SSL Certificate Error: ASP.NET Core API uses a self-signed certificate. Ensure you have trusted it using "dotnet dev-certs https --trust" AND/OR Node.js is configured to ignore untrusted certificates for development (e.g., by setting rejectUnauthorized to false).');
             } else if (error.code === 'ECONNREFUSED') {
                 throw new Error('Connection Refused: ASP.NET Core API might not be running or its URL is incorrect.');
-            } else if (error.code === 'ERR_INVALID_URL') { // Added specific handling for this error
+            } else if (error.code === 'ERR_INVALID_URL') { 
                  throw new Error('Invalid URL for ASP.NET API. Check ASPNET_API_URL in .env and the fetch path in githubService.js.');
             }
             throw new Error('No response from backend API (Service unavailable).');
